@@ -1,0 +1,27 @@
+https://docs.aws.amazon.com/ko_kr/eks/latest/userguide/autoscaling.html#cluster-autoscaler
+
+# IAM Poilcy 생성 - <cluster-name> 반드시 수정할 것!
+aws iam create-policy \
+    --policy-name AmazonEKSClusterAutoscalerPolicy \
+    --policy-document file://cluster-autoscaler-policy.json
+    
+# IRSA 생성 - cluster와 account number를 환경에 맞게 수정
+eksctl create iamserviceaccount \
+  --cluster=<my-cluster> \
+  --region=ap-northeast-2 \
+  --namespace=kube-system \
+  --name=cluster-autoscaler \
+  --attach-policy-arn=arn:aws:iam::<111122223333>:policy/AmazonEKSClusterAutoscalerPolicy \
+  --override-existing-serviceaccounts \
+  --approve
+  
+# cluster-autoscaler manifest 다운로드
+curl -O https://raw.githubusercontent.com/kubernetes/autoscaler/master/cluster-autoscaler/cloudprovider/aws/examples/cluster-autoscaler-autodiscover.yaml
+
+# cluster 이름 변경후, manifest 설치
+kubectl apply -f cluster-autoscaler-autodiscover.yaml
+
+# ACCOUNT_ID 값 정정
+kubectl annotate serviceaccount cluster-autoscaler \
+  -n kube-system \
+  eks.amazonaws.com/role-arn=arn:aws:iam::ACCOUNT_ID:role/AmazonEKSClusterAutoscalerRole
