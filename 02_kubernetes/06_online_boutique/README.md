@@ -8,3 +8,5 @@ kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/microserv
 
 
 ### Quiz 2. /nginx 경로에서 nginx를 여전히 보여주고 싶다면?
+Hint. https://kubernetes.io/docs/concepts/services-networking/ingress/
+
