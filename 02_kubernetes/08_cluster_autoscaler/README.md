@@ -7,11 +7,11 @@ aws iam create-policy \
     
 # IRSA 생성 - cluster와 account number를 환경에 맞게 수정
 eksctl create iamserviceaccount \
-  --cluster=<my-cluster> \
+  --cluster=${CLUSTER_NAME} \
   --region=ap-northeast-2 \
   --namespace=kube-system \
   --name=cluster-autoscaler \
-  --attach-policy-arn=arn:aws:iam::<111122223333>:policy/AmazonEKSClusterAutoscalerPolicy \
+  --attach-policy-arn=arn:aws:iam::${AWS_ACCOUNT_ID}:policy/AmazonEKSClusterAutoscalerPolicy \
   --override-existing-serviceaccounts \
   --approve
   

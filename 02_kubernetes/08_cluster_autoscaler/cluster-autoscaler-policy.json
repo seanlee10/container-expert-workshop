@@ -11,7 +11,7 @@
             "Resource": "*",
             "Condition": {
                 "StringEquals": {
-                    "aws:ResourceTag/k8s.io/cluster-autoscaler/cluster-sean": "owned"
+                    "aws:ResourceTag/k8s.io/cluster-autoscaler/<cluster-name>": "owned"
                 }
             }
         },
