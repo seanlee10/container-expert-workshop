@@ -1,12 +1,12 @@
 ### AWS Load Balancer Controller 설치
 
-1. IAM Identity Provider 생성
+1. IAM Identity Provider 생성 - Cluster Name 반드시 수정할 것!
 
 ```bash
 # IAM Identity Provider 생성
 eksctl utils associate-iam-oidc-provider \
     --region ap-northeast-2 \
-    --cluster <cluster-name> \
+    --cluster $CLUSTER_NAME \
     --approve
 ```
 
@@ -19,17 +19,17 @@ aws iam create-policy \
     --policy-document file://iam-policy.json
 ```
 
-3. IAM Role과 EKS Service Account 생성
+3. IAM Role과 EKS Service Account 생성 - Cluster Name 반드시 수정할 것!
 
 ```bash
 # IAM Role과 EKS Service Account 생성
 eksctl create iamserviceaccount \
---cluster=<cluster-name> \
---region=ap-northeast-2 \
---namespace=kube-system \
---name=aws-load-balancer-controller \
---attach-policy-arn=arn:aws:iam::<AWS_ACCOUNT_ID>:policy/AWSLoadBalancerControllerIAMPolicy \
---approve
+    --cluster=${CLUSTER_NAME} \
+    --region=ap-northeast-2 \
+    --namespace=kube-system \
+    --name=aws-load-balancer-controller \
+    --attach-policy-arn=arn:aws:iam::${AWS_ACCOUNT_ID}:policy/AWSLoadBalancerControllerIAMPolicy \
+    --approve
 ```
 
 4. `aws-load-balancer-controller` helm chart 설치
@@ -42,7 +42,7 @@ helm repo add eks https://aws.github.io/eks-charts
 helm install aws-load-balancer-controller \
     eks/aws-load-balancer-controller \
     -n kube-system \
-    --set clusterName=my-cluster \    
+    --set clusterName=${CLUSTER_NAME} \
     --set serviceAccount.create=false \
     --set serviceAccount.name=aws-load-balancer-controller
 ```

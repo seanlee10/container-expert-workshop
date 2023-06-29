@@ -1,14 +1,10 @@
 ### 테스트 워크로드 배포
 
-1. nginx service와 deployment 생성
-
 ```bash
-git clone https://github.com/seanlee10/service-mesh-hands-on.git
+# nginx service와 deployment 생성
 kubectl apply -f nginx.yaml
+
+# port-forward로 Cloud9 인스턴스 8080 포트 접속하여 확인
+kubectl port-forward svc/nginx 8080:80 --address='0.0.0.0'
 ```
 
-1. ingress 생성
-
-```bash
-kubectl apply -f ingress.yaml
-```

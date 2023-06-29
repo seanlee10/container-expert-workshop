@@ -1,15 +1,3 @@
-# eksctl로 EKS 1.27 클러스터 만들기
-
-### 필요한 도구들
-
-- kubectl v1.27
-- eksctl
-- aws-cli v2
-- brew
-- k9s
-- helm
-- Cloud9InstanceProfile IAM Role
-
 ### 도구 설치
 
 1. kubectl 1.27 설치 [https://docs.aws.amazon.com/eks/latest/userguide/install-kubectl.html](https://docs.aws.amazon.com/eks/latest/userguide/install-kubectl.html)
@@ -79,58 +67,7 @@ brew install helm
 2. Cloud9 Modify IAM role to `Cloud9InstanceProfile`
 3. Cloud9 - AWS managed temporary credential 옵션 비활성화
 4. `aws sts get-caller-identity`로 `Cloud9InstanceProfile`로 변경 확인
-5. EKS 클러스터 만들기 - 노드그룹 생성을 안해주면 기본으로 m5.large 클러스터가 2개 만들어진다.
 
-### EKS Cluster 생성
+### Cloud9 Security Group 변경
 
-```bash
-eksctl create cluster --name cluster-<name> --region ap-northeast-2 --version 1.27
-```
-
-### AWS Load Balancer Controller 설치
-
-1. `aws-load-balancer-controller` 설치
-
-```bash
-# IAM Identity Provider 생성
-eksctl utils associate-iam-oidc-provider \
-    --region ap-northeast-2 \
-    --cluster cluster-sean \
-    --approve
-
-# IAM Policy 생성
-curl -o iam-policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/main/docs/install/iam_policy.json
-aws iam create-policy \
-    --policy-name AWSLoadBalancerControllerIAMPolicy \
-    --policy-document file://iam-policy.json
-
-# IAM Role과 EKS Service Account 생성
-eksctl create iamserviceaccount \
---cluster=<cluster-name> \
---region=ap-northeast-2 \
---namespace=kube-system \
---name=aws-load-balancer-controller \
---attach-policy-arn=arn:aws:iam::<AWS_ACCOUNT_ID>:policy/AWSLoadBalancerControllerIAMPolicy \
---approve
-
-# helm repo 추가
-helm repo add eks https://aws.github.io/eks-charts
-
-# aws-load-balancer-controller helm chart 설치
-helm install aws-load-balancer-controller eks/aws-load-balancer-controller --set clusterName=my-cluster -n kube-system --set serviceAccount.create=false --set serviceAccount.name=aws-load-balancer-controller
-```
-
-### 테스트 워크로드 배포
-
-1. nginx service와 deployment 생성
-
-```bash
-git clone https://github.com/seanlee10/service-mesh-hands-on.git
-kubectl apply -f nginx.yaml
-```
-
-1. ingress 생성
-
-```bash
-kubectl apply -f ingress.yaml
-```
+1. 8080 Port를 Inbound Public으로 개방
