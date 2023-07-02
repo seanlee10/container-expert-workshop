@@ -133,7 +133,20 @@ aws iam add-role-to-instance-profile \
 
 ```
 
-## Karpenter 설치
+## KarpenterNodeRole aws-auth ConfigMap 등록
+
+```bash
+kubectl edit configmap aws-auth -n kube-system
+
+# 다음 블록을 mapRoles에 추가해준다.
+
+    - groups:
+      - system:bootstrappers
+      - system:nodes
+      rolearn: arn:aws:iam::${AWS_ACCOUNT_ID}:role/KarpenterNodeRole-${CLUSTER_NAME}
+      username: system:node:{{EC2PrivateDNSName}}
+
+```
 
 ```bash
 # Subnet에 Karpenter 태그 등록
@@ -144,8 +157,19 @@ for NODEGROUP in $(aws eks list-nodegroups --cluster-name ${CLUSTER_NAME} \
         --nodegroup-name $NODEGROUP --query 'nodegroup.subnets' --output text )
 done
 
+# Cluster Security Group에 Karpenter 태그 등록
+CLUSTER_SECURITY_GROUP_ID="$(aws eks describe-cluster --name ${CLUSTER_NAME} --region ap-northeast-2 --query "cluster.resourcesVpcConfig.clusterSecurityGroupId" --output text)"
 
-# Karpenter 설치
+aws ec2 create-tags \
+    --tags "Key=karpenter.sh/discovery,Value=${CLUSTER_NAME}" \
+    --resources ${CLUSTER_SECURITY_GROUP_ID}
+
+```
+
+## karpenter.yaml 파일 생성 
+
+```bash
+
 helm template karpenter oci://public.ecr.aws/karpenter/karpenter --version ${KARPENTER_VERSION} --namespace karpenter \
     --set settings.aws.defaultInstanceProfile=KarpenterNodeInstanceProfile-${CLUSTER_NAME} \
     --set settings.aws.clusterName=${CLUSTER_NAME} \
@@ -156,7 +180,42 @@ helm template karpenter oci://public.ecr.aws/karpenter/karpenter --version ${KAR
     --set controller.resources.limits.memory=1Gi > karpenter.yaml
 ```
 
-# Provisioner 생성
+## karpenter.yaml 파일 편집 - Line 488에 NODEGROUP 설정
+
+```bash
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: karpenter.sh/provisioner-name
+          operator: DoesNotExist
+      - matchExpressions:
+        - key: eks.amazonaws.com/nodegroup
+          operator: In
+          values:
+          - ${NODEGROUP}
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      - topologyKey: "kubernetes.io/hostname"
+```
+
+# Karpenter 설치
+
+```bash
+kubectl create namespace karpenter
+kubectl create -f \
+    https://raw.githubusercontent.com/aws/karpenter/${KARPENTER_VERSION}/pkg/apis/crds/karpenter.sh_provisioners.yaml
+kubectl create -f \
+    https://raw.githubusercontent.com/aws/karpenter/${KARPENTER_VERSION}/pkg/apis/crds/karpenter.k8s.aws_awsnodetemplates.yaml
+kubectl create -f \
+    https://raw.githubusercontent.com/aws/karpenter/${KARPENTER_VERSION}/pkg/apis/crds/karpenter.sh_machines.yaml
+kubectl apply -f karpenter.yaml
+
+```
+
+
+## Provisioner 생성
 
 ```bash
 cat <<EOF | kubectl apply -f -
@@ -185,5 +244,14 @@ spec:
   securityGroupSelector:
     karpenter.sh/discovery: "${CLUSTER_NAME}"
 EOF
+
+```
+
+## NodeGroup 사이즈 조정 - 앞으로 생기는 클러스터는 NodeGroup이 아닌 Karpenter로 생성하기 위함
+
+```bash
+aws eks update-nodegroup-config --cluster-name ${CLUSTER_NAME} \
+    --nodegroup-name ${NODEGROUP} \
+    --scaling-config "minSize=2,maxSize=2,desiredSize=2"
 
 ```
