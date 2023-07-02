@@ -42,13 +42,13 @@ spec:
 #         subset: v1
 #         port:
 #           number: 80
-#       weight: 0
+#       weight: 100
 #     - destination:
 #         host: service-blue.default.svc.cluster.local
 #         subset: v2
 #         port:
 #           number: 80
-#       weight: 100
+#       weight: 0
 # ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
