@@ -1,25 +1,3 @@
-# apiVersion: networking.istio.io/v1alpha3
-# kind: VirtualService
-# metadata:
-#   name: service-blue-vsvc
-#   namespace: default
-# spec:
-#   gateways:
-#   - gateway
-#   hosts:
-#   - "*"
-#   http:
-#   - match:
-#     - uri:
-#         exact: "/blue"
-#     rewrite:
-#       uri: "/"
-#     route:
-#     - destination:
-#         host: service-blue.default.svc.cluster.local
-#         port:
-#           number: 80
-# ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
@@ -39,17 +17,39 @@ spec:
     route:
     - destination:
         host: service-blue.default.svc.cluster.local
-        subset: v1
         port:
           number: 80
-      weight: 0
-    - destination:
-        host: service-blue.default.svc.cluster.local
-        subset: v2
-        port:
-          number: 80
-      weight: 100
 ---
+# apiVersion: networking.istio.io/v1alpha3
+# kind: VirtualService
+# metadata:
+#   name: service-blue-vsvc
+#   namespace: default
+# spec:
+#   gateways:
+#   - gateway
+#   hosts:
+#   - "*"
+#   http:
+#   - match:
+#     - uri:
+#         exact: "/blue"
+#     rewrite:
+#       uri: "/"
+#     route:
+#     - destination:
+#         host: service-blue.default.svc.cluster.local
+#         subset: v1
+#         port:
+#           number: 80
+#       weight: 0
+#     - destination:
+#         host: service-blue.default.svc.cluster.local
+#         subset: v2
+#         port:
+#           number: 80
+#       weight: 100
+# ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:

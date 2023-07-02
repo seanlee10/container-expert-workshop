@@ -8,12 +8,12 @@ metadata:
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/subnets: <subnet-id>,<subnet-id>
     alb.ingress.kubernetes.io/target-type: 'ip'
-    kubernetes.io/ingress.class: alb
   labels:
     app: ingress-gw
   name: ingress-gw
   namespace: istio-system
 spec:
+  ingressClassName: alb
   defaultBackend:
     service:
       name: istio-ingressgateway
