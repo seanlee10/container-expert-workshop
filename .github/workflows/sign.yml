@@ -1,6 +1,7 @@
 # sign.yml
 name: Sign Image
 permissions:
+  id-token: write
   packages: write
   contents: read
 # Controls when the workflow will run
