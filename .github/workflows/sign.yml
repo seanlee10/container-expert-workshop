@@ -60,6 +60,18 @@ jobs:
           docker build -t ${{ env.AWS_ECR_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/blue-service:latest .
           docker images
           docker push ${{ env.AWS_ECR_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/blue-service:latest
+          docker inspect --format='{{index .RepoDigests 0}}' $IMAGE_DIGEST
+          echo $IMAGE_DIGEST
+      # - name: Sign Image
+      #   run: |
+      #     aws ecr get-login-password | notation login \
+      #     --username AWS \
+      #     --password-stdin ${{ env.AWS_ECR_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
+      #     notation sign \
+      #     ${{ env.AWS_ECR_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/blue-service\
+      #     @sha256:<IMAGE_DIGEST> \
+      #     --plugin com.amazonaws.signer.notation.plugin \
+      #     --id arn:aws:signer:${{ env.AWS_REGION }}:${{ env.AWS_ECR_ACCOUNT_ID }}:/signing-profiles/notation_test
       # - name: Push Chart
       #   run: |
       #     echo ${{ secrets.GITHUB_TOKEN }} | helm registry login ghcr.io -u $ --password-stdin
