@@ -64,9 +64,6 @@ jobs:
           echo ${{ env.IMAGE_DIGEST }}
       - name: Sign Image
         run: |
-          aws ecr get-login-password | notation login \
-          --username AWS \
-          --password-stdin ${{ env.AWS_ECR_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
           notation sign \
           ${{ env.AWS_ECR_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.IMAGE_DIGEST }} \
           --plugin com.amazonaws.signer.notation.plugin \
