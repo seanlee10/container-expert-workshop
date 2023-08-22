@@ -65,7 +65,7 @@ jobs:
       - name: Sign Image
         run: |
           notation sign \
-          ${{ env.AWS_ECR_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.IMAGE_DIGEST }} \
+          ${{ env.IMAGE_DIGEST }} \
           --plugin com.amazonaws.signer.notation.plugin \
           --id arn:aws:signer:${{ env.AWS_REGION }}:${{ env.AWS_ECR_ACCOUNT_ID }}:/signing-profiles/notation_test
       # - name: Push Chart
