@@ -1,0 +1,54 @@
+# sign.yml
+name: Sign Image
+permissions:
+  packages: write
+  contents: read
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  release:
+    permissions:
+      contents: write
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+        
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-region: ap-northeast-2
+          role-to-assume: arn:aws:iam::310330934744:role/github-ecr-push-role
+          role-session-name: MySessionName
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+        with:
+          mask-password: 'true'
+
+      # - name: Build Image
+      #   run: |
+      #     pwd
+      #     ls
+      #     docker build -t 310330934744.dkr.ecr.ap-northeast-2.amazonaws.com/awscli:latest
+      # - name: Push Chart
+      #   run: |
+      #     echo ${{ secrets.GITHUB_TOKEN }} | helm registry login ghcr.io -u $ --password-stdin
+      #     helm push hello-world-0.1.1.tgz oci://ghcr.io/${{ github.repository_owner }}
+    #   - name: Install Notation CLI
+    #     run: |
+          
