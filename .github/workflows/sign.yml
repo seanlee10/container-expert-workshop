@@ -57,10 +57,11 @@ jobs:
       - name: Build Image
         run: |
           cd 01_docker/04_nodejs_blue_service
-          docker build -t ${{ env.AWS_ECR_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/blue-service:latest .
+          IMAGE=${{ env.AWS_ECR_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/blue-service:latest
+          docker build -t $IMAGE .
           docker images
-          docker push ${{ env.AWS_ECR_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/blue-service:latest
-          docker inspect --format='{{index .RepoDigests 0}}' $IMAGE_DIGEST
+          docker push $IMAGE
+          IMAGE_DIGEST=eval(docker inspect --format='{{index .RepoDigests 0}}' $IMAGE)
           echo $IMAGE_DIGEST
       # - name: Sign Image
       #   run: |
