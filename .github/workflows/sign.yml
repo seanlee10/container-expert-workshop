@@ -36,9 +36,10 @@ jobs:
       
       - name: Install Notation CLI
         run: |
-          pwd
           wget https://d2hvyiie56hcat.cloudfront.net/linux/amd64/installer/deb/latest/aws-signer-notation-cli_amd64.deb
           sudo dpkg -i aws-signer-notation-cli_amd64.deb
+          notation version
+          notation plugin ls
       
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
