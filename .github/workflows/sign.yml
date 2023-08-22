@@ -34,7 +34,7 @@ jobs:
         with:
           aws-region: ap-northeast-2
           role-to-assume: arn:aws:iam::310330934744:role/github-ecr-push-role
-          role-session-name: MySessionName
+          audience: sts.amazonaws.com
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
