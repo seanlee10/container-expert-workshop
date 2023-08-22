@@ -15,6 +15,11 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+env:
+  # AWS 변수
+  AWS_REGION: ap-northeast-2
+  AWS_ECR_ACCOUNT_ID: 310330934744
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
@@ -40,12 +45,13 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1
         with:
           mask-password: 'true'
+          registries: ${{ env.AWS_ECR_ACCOUNT_ID }}
 
       - name: Build Image
         run: |
           cd 01_docker/02_awscli
-          docker build -t 310330934744.dkr.ecr.ap-northeast-2.amazonaws.com/awscli:latest .
-          docker push 310330934744.dkr.ecr.ap-northeast-2.amazonaws.com/awscli:latest
+          docker build -t ${{ env.AWS_ECR_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/awscli:latest .
+          docker push ${{ env.AWS_ECR_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/awscli:latest
       # - name: Push Chart
       #   run: |
       #     echo ${{ secrets.GITHUB_TOKEN }} | helm registry login ghcr.io -u $ --password-stdin
