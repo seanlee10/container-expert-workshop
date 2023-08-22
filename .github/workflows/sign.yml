@@ -59,20 +59,18 @@ jobs:
           cd 01_docker/04_nodejs_blue_service
           IMAGE=${{ env.AWS_ECR_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/blue-service:latest
           docker build -t $IMAGE .
-          docker images
           docker push $IMAGE
-          IMAGE_DIGEST=eval(docker inspect --format='{{index .RepoDigests 0}}' $IMAGE)
-          echo $IMAGE_DIGEST
-      # - name: Sign Image
-      #   run: |
-      #     aws ecr get-login-password | notation login \
-      #     --username AWS \
-      #     --password-stdin ${{ env.AWS_ECR_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
-      #     notation sign \
-      #     ${{ env.AWS_ECR_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/blue-service\
-      #     @sha256:<IMAGE_DIGEST> \
-      #     --plugin com.amazonaws.signer.notation.plugin \
-      #     --id arn:aws:signer:${{ env.AWS_REGION }}:${{ env.AWS_ECR_ACCOUNT_ID }}:/signing-profiles/notation_test
+          echo "IMAGE_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' $IMAGE)" >> $GITHUB_ENV
+          echo ${{ env.IMAGE_DIGEST }}
+      - name: Sign Image
+        run: |
+          aws ecr get-login-password | notation login \
+          --username AWS \
+          --password-stdin ${{ env.AWS_ECR_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
+          notation sign \
+          ${{ env.AWS_ECR_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.IMAGE_DIGEST }} \
+          --plugin com.amazonaws.signer.notation.plugin \
+          --id arn:aws:signer:${{ env.AWS_REGION }}:${{ env.AWS_ECR_ACCOUNT_ID }}:/signing-profiles/notation_test
       # - name: Push Chart
       #   run: |
       #     echo ${{ secrets.GITHUB_TOKEN }} | helm registry login ghcr.io -u $ --password-stdin
