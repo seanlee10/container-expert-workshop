@@ -41,11 +41,10 @@ jobs:
         with:
           mask-password: 'true'
 
-      # - name: Build Image
-      #   run: |
-      #     pwd
-      #     ls
-      #     docker build -t 310330934744.dkr.ecr.ap-northeast-2.amazonaws.com/awscli:latest
+      - name: Build Image
+        run: |
+          docker build -t 310330934744.dkr.ecr.ap-northeast-2.amazonaws.com/awscli:latest
+          docker push 310330934744.dkr.ecr.ap-northeast-2.amazonaws.com/awscli:latest
       # - name: Push Chart
       #   run: |
       #     echo ${{ secrets.GITHUB_TOKEN }} | helm registry login ghcr.io -u $ --password-stdin
