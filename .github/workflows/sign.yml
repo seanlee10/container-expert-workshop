@@ -34,9 +34,9 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
       
-      - name: Install Notation CLI
+      - name: Install Cosign CLI
         run: |
-          https://github.com/sigstore/cosign/releases/download/v2.1.1/cosign_2.1.1_amd64.deb
+          wget https://github.com/sigstore/cosign/releases/download/v2.1.1/cosign_2.1.1_amd64.deb
           sudo dpkg -i cosign_2.1.1_amd64.deb
           cosign version
       
