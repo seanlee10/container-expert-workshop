@@ -36,10 +36,9 @@ jobs:
       
       - name: Install Notation CLI
         run: |
-          wget https://d2hvyiie56hcat.cloudfront.net/linux/amd64/installer/deb/latest/aws-signer-notation-cli_amd64.deb
-          sudo dpkg -i aws-signer-notation-cli_amd64.deb
-          notation version
-          notation plugin ls
+          https://github.com/sigstore/cosign/releases/download/v2.1.1/cosign_2.1.1_amd64.deb
+          sudo dpkg -i cosign_2.1.1_amd64.deb
+          cosign version
       
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -54,20 +53,20 @@ jobs:
           mask-password: 'true'
           registries: ${{ env.AWS_ECR_ACCOUNT_ID }}
 
-      - name: Build Image
-        run: |
-          cd 01_docker/04_nodejs_blue_service
-          IMAGE=${{ env.AWS_ECR_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/blue-service:latest
-          docker build -t $IMAGE .
-          docker push $IMAGE
-          echo "IMAGE_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' $IMAGE)" >> $GITHUB_ENV
-          echo ${{ env.IMAGE_DIGEST }}
-      - name: Sign Image
-        run: |
-          notation sign \
-          ${{ env.IMAGE_DIGEST }} \
-          --plugin com.amazonaws.signer.notation.plugin \
-          --id arn:aws:signer:${{ env.AWS_REGION }}:${{ env.AWS_ECR_ACCOUNT_ID }}:/signing-profiles/notation_test
+      # - name: Build Image
+      #   run: |
+      #     cd 01_docker/04_nodejs_blue_service
+      #     IMAGE=${{ env.AWS_ECR_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/blue-service:latest
+      #     docker build -t $IMAGE .
+      #     docker push $IMAGE
+      #     echo "IMAGE_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' $IMAGE)" >> $GITHUB_ENV
+      #     echo ${{ env.IMAGE_DIGEST }}
+      # - name: Sign Image
+      #   run: |
+      #     notation sign \
+      #     ${{ env.IMAGE_DIGEST }} \
+      #     --plugin com.amazonaws.signer.notation.plugin \
+      #     --id arn:aws:signer:${{ env.AWS_REGION }}:${{ env.AWS_ECR_ACCOUNT_ID }}:/signing-profiles/notation_test
       # - name: Push Chart
       #   run: |
       #     echo ${{ secrets.GITHUB_TOKEN }} | helm registry login ghcr.io -u $ --password-stdin
