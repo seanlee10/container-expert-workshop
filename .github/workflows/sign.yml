@@ -59,18 +59,10 @@ jobs:
           IMAGE=${{ env.AWS_ECR_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/blue-service:latest
           docker build -t $IMAGE .
           docker push $IMAGE
-          echo "IMAGE_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' $IMAGE)" >> $GITHUB_ENV
-          echo ${{ env.IMAGE_DIGEST }}
       - name: Sign Image
         run: |
           cosign sign \
           --key awskms:///alias/container-image-verification \
           --upload=true \
           ${{ env.AWS_ECR_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/blue-service:latest
-      # - name: Push Chart
-      #   run: |
-      #     echo ${{ secrets.GITHUB_TOKEN }} | helm registry login ghcr.io -u $ --password-stdin
-      #     helm push hello-world-0.1.1.tgz oci://ghcr.io/${{ github.repository_owner }}
-    #   - name: Install Notation CLI
-    #     run: |
           
